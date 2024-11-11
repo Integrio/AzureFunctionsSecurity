@@ -1,7 +1,58 @@
-default:
-  image: nikolaik/python-nodejs:python3.13-nodejs20-slim
-build-job:
+workflow:
+
+variables:
+  NUGET_PACKAGES_DIRECTORY: '.nuget'
+
+cache:
+  # Per-stage and per-branch caching.
+  key: "$CI_JOB_STAGE-$CI_COMMIT_REF_SLUG"
+  paths:
+    - '$SOURCE_CODE_PATH$OBJECTS_DIRECTORY/project.assets.json'
+    - '$SOURCE_CODE_PATH$OBJECTS_DIRECTORY/*.csproj.nuget.*'
+    - '$NUGET_PACKAGES_DIRECTORY'
+
+image: mcr.microsoft.com/dotnet/sdk:8.0
+
+build-library:
   stage: build
+  script:
+    - dotnet restore --packages $NUGET_PACKAGES_DIRECTORY
+    - dotnet build --no-restore -c Release
+  artifacts:
+    untracked: true
+
+test-library:
+  stage: build
+  needs:
+    - job: build-library
+      artifacts: true
+  script:
+    - dotnet test --no-build --no-restore
+
+package-library:
+  stage: build
+  needs:
+    - job: build-library
+      artifacts: true
+  before_script:
+    - apt-get update && apt-get install -y wget
+    - wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
+  script: |
+    OPENAPI_FILE=$(find apis -type f -name "*.openapi.yaml" | head -n 1)
+    if [[ -z "$OPENAPI_FILE" ]]; then
+      echo "OpenAPI specification file not found"
+      exit 1
+    fi
+    echo "Found OpenAPI specification file: $OPENAPI_FILE"
+    API_VERSION=$(yq '.info.version' "$OPENAPI_FILE")
+    dotnet pack -c Release --no-build -p:PackageVersion=$API_VERSION --output nupkg
+  artifacts:
+    paths:
+      - nupkg
+
+generate-docs:
+  stage: deploy
+  image: nikolaik/python-nodejs:python3.13-nodejs20-slim
   script: |
     npm install -g @techdocs/cli
     pip install "mkdocs-techdocs-core==1.*"
@@ -14,4 +65,15 @@ build-job:
     export AZURE_CLIENT_ID=$Intropy_Client_Id
     export AZURE_CLIENT_SECRET=$Intropy_Client_Secret
     export AZURE_TENANT_ID=$Intropy_Tenant_Id
-    techdocs-cli publish --publisher-type azureBlobStorage --azureAccountName igrbackstage01sa --storage-name docs --entity $namespace/$kind/$name  
+    techdocs-cli publish --publisher-type azureBlobStorage --azureAccountName igrbackstage01sa --storage-name docs --entity $namespace/$kind/$name
+
+deploy-nuget:
+  stage: deploy
+  needs:
+    - job: package-library
+      artifacts: true
+  script:
+    - echo "Checking contents of nupkg directory before push:"
+    - echo "Pushing package to GitLab Group NuGet package feed"
+    - dotnet nuget push nupkg/*.nupkg --api-key "${CI_DEPLOY_PASSWORD}" --source "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/nuget/index.json"
+    

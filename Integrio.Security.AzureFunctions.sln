@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integrio.Security.AzureFunctions", "components\Integrio.Authorization.AzureFunctions\src\Integrio.Security.AzureFunctions.csproj", "{B5D9D577-C9EF-41DE-ABEE-04DB7C4C9156}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integrio.Security.AzureFunctions.Runner", "components\Integrio.Security.AzureFunctions.Runner\Integrio.Security.AzureFunctions.Runner.csproj", "{E9B9049A-6D83-4A6A-91D9-2CA1E414145E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integrio.Security.AzureFunctions.Tests", "tests\Integrio.Security.AzureFunctions.Tests\Integrio.Security.AzureFunctions.Tests.csproj", "{C15C1E93-027C-46DA-8DF8-B3E5B6AAA8B2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B5D9D577-C9EF-41DE-ABEE-04DB7C4C9156}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5D9D577-C9EF-41DE-ABEE-04DB7C4C9156}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5D9D577-C9EF-41DE-ABEE-04DB7C4C9156}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5D9D577-C9EF-41DE-ABEE-04DB7C4C9156}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9B9049A-6D83-4A6A-91D9-2CA1E414145E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9B9049A-6D83-4A6A-91D9-2CA1E414145E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9B9049A-6D83-4A6A-91D9-2CA1E414145E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9B9049A-6D83-4A6A-91D9-2CA1E414145E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C15C1E93-027C-46DA-8DF8-B3E5B6AAA8B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C15C1E93-027C-46DA-8DF8-B3E5B6AAA8B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C15C1E93-027C-46DA-8DF8-B3E5B6AAA8B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C15C1E93-027C-46DA-8DF8-B3E5B6AAA8B2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
