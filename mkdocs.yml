@@ -1,0 +1,8 @@
+site_name: "AzureFunctionsSecurity"
+site_description: "Project for components related to Azure Functions security"
+
+nav:
+  - Introduction: index.md
+
+plugins:
+  - techdocs-core

@@ -1,0 +1,15 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: AzureFunctionsSecurity
+  title: AzureFunctionsSecurity
+  namespace: intropy
+  description: Project for components related to Azure Functions security
+  annotations:
+    gitlab.com/project-slug: integrio/intropy/AzureFunctionsSecurity
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/adr-location: docs/decisions
+spec:
+  type: documentation
+  lifecycle: experimental
+  owner: "group:default/intropy"
