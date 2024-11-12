@@ -27,7 +27,7 @@ test-library:
     - job: build-library
       artifacts: true
   script:
-    - dotnet test --no-build --no-restore
+    - dotnet test --no-build --no-restore -c Release
 
 package-library:
   stage: build
