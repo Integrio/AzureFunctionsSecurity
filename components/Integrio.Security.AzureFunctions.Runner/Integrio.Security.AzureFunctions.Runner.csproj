@@ -5,6 +5,7 @@
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App"/>
@@ -27,6 +28,6 @@
     <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Integrio.Authorization.AzureFunctions\src\Integrio.Security.AzureFunctions.csproj" />
+    <ProjectReference Include="..\Integrio.Security.AzureFunctions\src\Integrio.Security.AzureFunctions.csproj" />
   </ItemGroup>
 </Project>

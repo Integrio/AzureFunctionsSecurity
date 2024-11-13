@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\components\Integrio.Authorization.AzureFunctions\src\Integrio.Security.AzureFunctions.csproj" />
-    <ProjectReference Include="..\..\components\Integrio.Security.AzureFunctions.Runner\Integrio.Security.AzureFunctions.Runner.csproj" />
+    <ProjectReference Include="..\..\Integrio.Security.AzureFunctions.Runner\Integrio.Security.AzureFunctions.Runner.csproj" />
+    <ProjectReference Include="..\src\Integrio.Security.AzureFunctions.csproj" />
   </ItemGroup>
 
 </Project>

@@ -35,7 +35,7 @@ test-library:
 package-library:
   stage: build
   needs:
-    - job: build-library
+    - job: test-library
       artifacts: true
   script:
     dotnet pack -c Release --no-build --output nupkg
