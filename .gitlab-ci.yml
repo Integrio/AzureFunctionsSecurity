@@ -4,7 +4,6 @@ variables:
   NUGET_PACKAGES_DIRECTORY: '.nuget'
 
 cache:
-  # Per-stage and per-branch caching.
   key: "$CI_JOB_STAGE-$CI_COMMIT_REF_SLUG"
   paths:
     - '$SOURCE_CODE_PATH$OBJECTS_DIRECTORY/project.assets.json'
@@ -12,6 +11,10 @@ cache:
     - '$NUGET_PACKAGES_DIRECTORY'
 
 image: mcr.microsoft.com/dotnet/sdk:8.0
+
+stages:
+  - build
+  - deploy
 
 build-library:
   stage: build
@@ -34,18 +37,8 @@ package-library:
   needs:
     - job: build-library
       artifacts: true
-  before_script:
-    - apt-get update && apt-get install -y wget
-    - wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
-  script: |
-    OPENAPI_FILE=$(find apis -type f -name "*.openapi.yaml" | head -n 1)
-    if [[ -z "$OPENAPI_FILE" ]]; then
-      echo "OpenAPI specification file not found"
-      exit 1
-    fi
-    echo "Found OpenAPI specification file: $OPENAPI_FILE"
-    API_VERSION=$(yq '.info.version' "$OPENAPI_FILE")
-    dotnet pack -c Release --no-build -p:PackageVersion=$API_VERSION --output nupkg
+  script:
+    dotnet pack -c Release --no-build --output nupkg
   artifacts:
     paths:
       - nupkg
