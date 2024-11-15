@@ -20,6 +20,7 @@ build-library:
   stage: build
   script:
     - dotnet restore --packages $NUGET_PACKAGES_DIRECTORY
+    - dotnet build --no-restore -c Release
   artifacts:
     untracked: true
 
