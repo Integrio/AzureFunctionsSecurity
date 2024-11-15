@@ -20,7 +20,6 @@ build-library:
   stage: build
   script:
     - dotnet restore --packages $NUGET_PACKAGES_DIRECTORY
-    - dotnet build --no-restore -c Release
   artifacts:
     untracked: true
 
@@ -35,7 +34,7 @@ test-library:
 package-library:
   stage: build
   needs:
-    - job: test-library
+    - job: build-library
       artifacts: true
   script:
     dotnet pack -c Release --no-build --output nupkg
