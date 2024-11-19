@@ -5,7 +5,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Authors>Integrio AB</Authors>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
     <Version>1.1.1</Version>
     <PackageTags>authorization azure functions</PackageTags>
     <PackageReleaseNotes>https://gitlab.com/integrio/intropy/AzureFunctionsSecurity/-/blob/main/CHANGELOG.md</PackageReleaseNotes>
