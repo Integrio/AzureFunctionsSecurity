@@ -68,7 +68,13 @@ public class FunctionAuthorizationMiddleware(
         });
         
         var appRoles = tokenValidationResult.ClaimsIdentity.FindAll("roles");
-        return appRoles.Any(ur => acceptedAppRoles.Contains(ur.Value));
+        var isAuthorized = appRoles.Any(ur => acceptedAppRoles.Contains(ur.Value));
+        if (isAuthorized)
+        {
+            context.Items[Constants.ClaimsIdentity] = tokenValidationResult.ClaimsIdentity;
+        }
+
+        return isAuthorized;
     }
 
     private MethodInfo? GetTargetFunctionMethod(FunctionContext context)

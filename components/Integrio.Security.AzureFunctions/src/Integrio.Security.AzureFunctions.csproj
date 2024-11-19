@@ -5,6 +5,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Authors>Integrio AB</Authors>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Version>1.1.0</Version>
+    <PackageTags>authorization azure functions</PackageTags>
+    <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(MSBuildProjectDirectory)/../docs/CHANGELOG.md"))</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,4 +18,8 @@
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.2.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\docs\README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+  
 </Project>

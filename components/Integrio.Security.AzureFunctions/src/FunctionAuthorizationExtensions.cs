@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Security.Claims;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Extensions.Configuration;
@@ -16,7 +17,7 @@ public static class FunctionAuthorizationExtensions
     
     public static IFunctionsWorkerApplicationBuilder UseFunctionAuthorization(
         this IFunctionsWorkerApplicationBuilder builder,
-        string configSectionPath)
+        string? configSectionPath = null)
     {
         builder.Services.AddSingleton<ITokenValidator, TokenValidator>();
         
@@ -100,6 +101,10 @@ public static class FunctionAuthorizationExtensions
         return tokenValidationParameters;
     }
 
+    public static ClaimsIdentity? GetClaimsIdentity(this FunctionContext self)
+    {
+        return self.Items.TryGetValue(Constants.ClaimsIdentity, out var identity) ? identity as ClaimsIdentity : default;
+    }
 
     private static string GetAuthority(string tenantId) =>
         string.Format(CultureInfo.InvariantCulture, entraIdAuthorityUrl, tenantId);

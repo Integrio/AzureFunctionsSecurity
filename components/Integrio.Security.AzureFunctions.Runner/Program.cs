@@ -11,7 +11,7 @@ var host = new HostBuilder()
         //     tenantId: "<tenantId>",
         //     validIssuers: ["<issuer1>", ">issuer2>"],
         //     validAudiences: ["<audience1>", "<audience2>"]);
-        builder.UseFunctionAuthorization(string.Empty);
+        builder.UseFunctionAuthorization();
     })
     .ConfigureAppConfiguration((context, builder) =>
     {
