@@ -34,6 +34,8 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Hosting;
 
 var host = new HostBuilder()
+    //Depending on your framework use either ConfigureFunctionsWorkerDefaults or ConfigureFunctionsWebApplication
+    //.ConfigureFunctionsWorkerDefaults(builder =>
     .ConfigureFunctionsWebApplication(builder =>
     {
         builder.UseFunctionAuthorization();

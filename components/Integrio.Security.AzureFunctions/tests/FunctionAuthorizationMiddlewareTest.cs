@@ -1,14 +1,20 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.IO;
+using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using Integrio.Security.AzureFunctions.WebApplication.Runner;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Xunit;
@@ -20,18 +26,29 @@ public class FunctionAuthorizationMiddlewareTest
 {
 
     [Fact]
-    public async Task Invoke_WithUnsupportedHosting_ThrowsNotSupportedException()
+    public async Task Invoke_NonHttpTriggeredFunction_CallsNext()
     {
         // Arrange
         var loggerMock = new Mock<ILogger<FunctionAuthorizationMiddleware>>();
         var tokenValidatorMock = new Mock<ITokenValidator>();
         var tokenValidationParameters = new TokenValidationParameters();
         var middleware = new FunctionAuthorizationMiddlewareFake(loggerMock.Object, tokenValidatorMock.Object, tokenValidationParameters, false);
+        
         var context = new Mock<FunctionContext>();
-        context.Setup(c => c.Items).Returns(new Dictionary<object, object?>()!);
+
+        var httpRequestDataFeature = new Mock<IHttpRequestDataFeature>();
+        httpRequestDataFeature.Setup(h => h.GetHttpRequestDataAsync(context.Object)).ReturnsAsync((HttpRequestData?)null);
+        var invocationFeatures =  new Mock<IInvocationFeatures>();
+        invocationFeatures.Setup(i => i.Get<IHttpRequestDataFeature>()).Returns(httpRequestDataFeature.Object);
+        
+        context.Setup(c => c.Features).Returns(invocationFeatures.Object);
+            
+        var nextMock = new Mock<FunctionExecutionDelegate>();
 
         // Act & Assert
-        await Assert.ThrowsAsync<NotSupportedException>(() => middleware.Invoke(context.Object, Mock.Of<FunctionExecutionDelegate>()));
+        await middleware.Invoke(context.Object, nextMock.Object);
+        
+        nextMock.Verify(n => n(context.Object), Times.Once);
     }
     
     [Fact]
@@ -43,9 +60,15 @@ public class FunctionAuthorizationMiddlewareTest
         var tokenValidationParameters = new TokenValidationParameters();
         var middleware = new FunctionAuthorizationMiddlewareFake(loggerMock.Object, tokenValidatorMock.Object, tokenValidationParameters, true);
         var context = new Mock<FunctionContext>();
-        var httpContext = new DefaultHttpContext();
-        var items = new Dictionary<object, object?> { { "HttpRequestContext", httpContext } };
-        context.Setup(c => c.Items).Returns(items!);
+        
+        var httpRequestDataFeature = new Mock<IHttpRequestDataFeature>();
+        httpRequestDataFeature.Setup(h => h.GetHttpRequestDataAsync(context.Object)).ReturnsAsync(new FakeHttpRequestData(context.Object, new Uri("http://localhost")));
+        
+        var invocationFeatures =  new Mock<IInvocationFeatures>();
+        invocationFeatures.Setup(i => i.Get<IHttpRequestDataFeature>()).Returns(httpRequestDataFeature.Object);
+
+        context.Setup(c => c.Features).Returns(invocationFeatures.Object);
+        
         var nextMock = new Mock<FunctionExecutionDelegate>();
 
         // Act
@@ -72,9 +95,17 @@ public class FunctionAuthorizationMiddlewareTest
         var middleware = new FunctionAuthorizationMiddlewareFake(loggerMock.Object, tokenValidatorMock.Object, tokenValidationParameters, false);
         
         var context = new Mock<FunctionContext>();
-        var httpContext = new DefaultHttpContext();
-        httpContext.Request.Headers.Authorization = "Bearer valid-token";
-        context.Setup(c => c.Items).Returns(new Dictionary<object, object> { { "HttpRequestContext", httpContext } });
+
+        var fakeHttpRequestData = new FakeHttpRequestData(context.Object, new Uri("http://localhost"));
+        fakeHttpRequestData.Headers.Add("Authorization", "Bearer valid-token");
+        var httpRequestDataFeature = new Mock<IHttpRequestDataFeature>();
+        httpRequestDataFeature.Setup(h => h.GetHttpRequestDataAsync(context.Object)).ReturnsAsync(fakeHttpRequestData);
+        
+        var invocationFeatures =  new Mock<IInvocationFeatures>();
+        invocationFeatures.Setup(i => i.Get<IHttpRequestDataFeature>()).Returns(httpRequestDataFeature.Object);
+
+        context.Setup(c => c.Items).Returns(new Dictionary<object, object>());
+        context.Setup(c => c.Features).Returns(invocationFeatures.Object);
         context.Setup(c => c.FunctionDefinition.EntryPoint).Returns("Integrio.Security.AzureFunctions.WebApplication.Runner.TestHttpTrigger.Run");
         context.Setup(c => c.FunctionDefinition.PathToAssembly).Returns(typeof(TestHttpTrigger).Assembly.Location);
 
@@ -96,4 +127,22 @@ public class FunctionAuthorizationMiddlewareTest
             It.IsAny<Exception>(),
             It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)!), times);
     }
+    
+    private HttpRequestData HttpRequestDataSetup(Dictionary<String, StringValues> query, string body)
+    {
+        var queryItems = query.Aggregate(new NameValueCollection(),
+            (seed, current) => {
+                seed.Add(current.Key, current.Value);
+                return seed;
+            });
+
+        var context = new Mock<FunctionContext>();
+        var request = new Mock<HttpRequestData>(context.Object);
+        var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(body));
+        request.Setup(x => x.Body).Returns(memoryStream);
+        request.Setup(x => x.Query).Returns(queryItems);
+
+        return request.Object;
+    }
+    
 }

@@ -16,6 +16,7 @@ public class FunctionAuthorizationMiddleware(
     TokenValidationParameters tokenValidationParameters,
     bool disableAuthentication) : IFunctionsWorkerMiddleware
 {
+    private const string HttpContextKey = "HttpRequestContext";
     private readonly ConcurrentDictionary<string, List<string>> _acceptedAppRolesCache = new();
 
     public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
