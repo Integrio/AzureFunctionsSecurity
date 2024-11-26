@@ -76,6 +76,7 @@ Secure an HTTP-triggered function with role-based authorization with `FunctionAu
 
 > **NOTE:** In the below example the `FunctionAuthorize` library will allow function invocation if the JWT bearer token contains any of the role claims: `Default`, `Writer`, or `Reader`.
 
+> **NOTE:** If no `FunctionAuthorize` attribute is present neither on class level nor on method level the function call will be authorized by default.
 ### Example Function 
 
 ```csharp
