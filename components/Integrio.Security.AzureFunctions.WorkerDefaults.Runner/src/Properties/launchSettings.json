@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Integrio.Security.AzureFunctions.WorkerDefaults.Runner": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7172",
+      "launchBrowser": false
+    }
+  }
+}

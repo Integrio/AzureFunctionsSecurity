@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Authors>Integrio AB</Authors>
-    <Version>1.1.1</Version>
+    <Version>1.2.0</Version>
     <PackageTags>authorization azure functions</PackageTags>
     <PackageReleaseNotes>https://gitlab.com/integrio/intropy/AzureFunctionsSecurity/-/blob/main/CHANGELOG.md</PackageReleaseNotes>
     <PackageProjectUrl>https://gitlab.com/integrio/intropy/AzureFunctionsSecurity</PackageProjectUrl>
@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.19.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="1.3.2" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.2.0" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.2.0" />
   </ItemGroup>

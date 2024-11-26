@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Net;
 using System.Reflection;
-using Microsoft.AspNetCore.Http;
+//using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker.Middleware;
@@ -20,8 +20,14 @@ public class FunctionAuthorizationMiddleware(
 
     public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
     {
-        var httpContext = context.GetHttpContext() ?? throw new NotSupportedException("Functions authorization for Isolated hosting is only supported with ASPNET Core integration");
-
+        var requestData = await context.GetHttpRequestDataAsync();
+        if (requestData is null) 
+        {
+            //Non HTTP triggered function call
+            await next(context);
+            return;
+        }
+        
         if (disableAuthentication)
         {
             logger.LogWarning("Authentication is disabled via configuration!");
@@ -29,13 +35,13 @@ public class FunctionAuthorizationMiddleware(
             return;
         }
         
-        if (!TryGetTokenFromHeaders(httpContext, out var token))
+        if (!TryGetTokenFromHeaders(requestData, out var token))
         {
             var responseData = await GetResponseAsync(context, HttpStatusCode.Unauthorized, "Missing Bearer token");
             SetResponse(context, responseData);
             return;
         }
-
+        
         var tokenValidationResult = await tokenValidator.ValidateTokenAsync(token, tokenValidationParameters);
         if (!tokenValidationResult.IsValid)
         {
@@ -118,20 +124,21 @@ public class FunctionAuthorizationMiddleware(
     }
 
 
-    private bool TryGetTokenFromHeaders(HttpContext context, out string? token)
+    private bool TryGetTokenFromHeaders(HttpRequestData requestData, out string? token)
     {
         token = default;
-
-        var authHeader = context.Request.Headers.FirstOrDefault(a => a.Key.ToLowerInvariant() == "authorization").Value.FirstOrDefault();
-        if (authHeader is null) return false;
-
-        if (!authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        if(requestData.Headers.TryGetValues("authorization", out var authHeaders))
         {
-            // Scheme is not Bearer
-            return false;
+            var authHeader = authHeaders.First();
+            if (!authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            {
+                // Scheme is not Bearer
+                return false;
+            }
+    
+            token = authHeader.Substring("Bearer ".Length).Trim();
+            return true;
         }
-
-        token = authHeader.Substring("Bearer ".Length).Trim();
-        return true;
+        return false;
     }
 }

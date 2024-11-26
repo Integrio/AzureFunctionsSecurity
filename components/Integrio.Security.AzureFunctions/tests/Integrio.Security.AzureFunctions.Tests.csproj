@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Integrio.Security.AzureFunctions.Runner\Integrio.Security.AzureFunctions.Runner.csproj" />
+    <ProjectReference Include="..\..\Integrio.Security.AzureFunctions.WebApplication.Runner\src\Integrio.Security.AzureFunctions.WebApplication.Runner.csproj" />
     <ProjectReference Include="..\src\Integrio.Security.AzureFunctions.csproj" />
   </ItemGroup>
 

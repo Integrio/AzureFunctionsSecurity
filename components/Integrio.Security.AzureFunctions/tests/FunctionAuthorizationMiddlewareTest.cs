@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Integrio.Security.AzureFunctions.Runner;
+using Integrio.Security.AzureFunctions.WebApplication.Runner;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
@@ -75,7 +75,7 @@ public class FunctionAuthorizationMiddlewareTest
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Headers.Authorization = "Bearer valid-token";
         context.Setup(c => c.Items).Returns(new Dictionary<object, object> { { "HttpRequestContext", httpContext } });
-        context.Setup(c => c.FunctionDefinition.EntryPoint).Returns("Integrio.Security.AzureFunctions.Runner.TestHttpTrigger.Run");
+        context.Setup(c => c.FunctionDefinition.EntryPoint).Returns("Integrio.Security.AzureFunctions.WebApplication.Runner.TestHttpTrigger.Run");
         context.Setup(c => c.FunctionDefinition.PathToAssembly).Returns(typeof(TestHttpTrigger).Assembly.Location);
 
         var nextMock = new Mock<FunctionExecutionDelegate>();

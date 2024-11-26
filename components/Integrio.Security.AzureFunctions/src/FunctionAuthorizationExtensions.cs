@@ -91,6 +91,7 @@ public static class FunctionAuthorizationExtensions
     {
         var tokenValidationParameters = new TokenValidationParameters
         {
+            
             ValidIssuers = validIssuers,
             ValidateAudience = validAudiences != null && validAudiences.Length != 0,
             ValidAudiences = validAudiences,

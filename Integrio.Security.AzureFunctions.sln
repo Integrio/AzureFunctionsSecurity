@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integrio.Security.AzureFunctions.Runner", "components\Integrio.Security.AzureFunctions.Runner\Integrio.Security.AzureFunctions.Runner.csproj", "{E9B9049A-6D83-4A6A-91D9-2CA1E414145E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integrio.Security.AzureFunctions", "components\Integrio.Security.AzureFunctions\src\Integrio.Security.AzureFunctions.csproj", "{D85CF584-B76E-4B1D-881E-DD45E8466905}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integrio.Security.AzureFunctions.Tests", "components\Integrio.Security.AzureFunctions\tests\Integrio.Security.AzureFunctions.Tests.csproj", "{8D2E7164-A434-48B6-9B2C-65D5650A95B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integrio.Security.AzureFunctions.WebApplication.Runner", "components\Integrio.Security.AzureFunctions.WebApplication.Runner\src\Integrio.Security.AzureFunctions.WebApplication.Runner.csproj", "{0FEB1F7A-F676-451D-B5DB-EE85D53E7961}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integrio.Security.AzureFunctions.WorkerDefaults.Runner", "components\Integrio.Security.AzureFunctions.WorkerDefaults.Runner\src\Integrio.Security.AzureFunctions.WorkerDefaults.Runner.csproj", "{9DB69389-BF6B-43E9-9983-FF5AFC3433A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,10 +20,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E9B9049A-6D83-4A6A-91D9-2CA1E414145E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E9B9049A-6D83-4A6A-91D9-2CA1E414145E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E9B9049A-6D83-4A6A-91D9-2CA1E414145E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E9B9049A-6D83-4A6A-91D9-2CA1E414145E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D85CF584-B76E-4B1D-881E-DD45E8466905}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D85CF584-B76E-4B1D-881E-DD45E8466905}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D85CF584-B76E-4B1D-881E-DD45E8466905}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -30,5 +28,13 @@ Global
 		{8D2E7164-A434-48B6-9B2C-65D5650A95B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D2E7164-A434-48B6-9B2C-65D5650A95B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D2E7164-A434-48B6-9B2C-65D5650A95B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FEB1F7A-F676-451D-B5DB-EE85D53E7961}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FEB1F7A-F676-451D-B5DB-EE85D53E7961}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FEB1F7A-F676-451D-B5DB-EE85D53E7961}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FEB1F7A-F676-451D-B5DB-EE85D53E7961}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DB69389-BF6B-43E9-9983-FF5AFC3433A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DB69389-BF6B-43E9-9983-FF5AFC3433A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DB69389-BF6B-43E9-9983-FF5AFC3433A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DB69389-BF6B-43E9-9983-FF5AFC3433A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

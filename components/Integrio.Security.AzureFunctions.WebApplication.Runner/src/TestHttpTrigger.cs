@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Integrio.Security.AzureFunctions.Runner;
+namespace Integrio.Security.AzureFunctions.WebApplication.Runner;
 
 [FunctionAuthorize("Default", "Writer")]
 public class TestHttpTrigger
@@ -23,7 +23,6 @@ public class TestHttpTrigger
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 
         var claimsIdentity = context.GetClaimsIdentity();
-
         if (claimsIdentity is null)
         {
             return new UnauthorizedResult();
