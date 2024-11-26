@@ -73,6 +73,12 @@ public class FunctionAuthorizationMiddleware(
             var targetMethod = GetTargetFunctionMethod(context);
             return GetAcceptedAppRoles(targetMethod);
         });
+
+        if (acceptedAppRoles.Count == 0)
+        {
+            //If no roles are defined on class or function method level, allow access
+            return true;
+        }
         
         var appRoles = tokenValidationResult.ClaimsIdentity.FindAll("roles");
         var isAuthorized = appRoles.Any(ur => acceptedAppRoles.Contains(ur.Value));
@@ -123,7 +129,6 @@ public class FunctionAuthorizationMiddleware(
         await responseData.WriteStringAsync(message);
         return responseData;
     }
-
 
     private bool TryGetTokenFromHeaders(HttpRequestData requestData, out string? token)
     {

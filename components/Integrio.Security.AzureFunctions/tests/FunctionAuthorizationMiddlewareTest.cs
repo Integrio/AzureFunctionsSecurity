@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Integrio.Security.AzureFunctions.Tests.Testables;
 using Integrio.Security.AzureFunctions.WebApplication.Runner;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
@@ -106,8 +107,47 @@ public class FunctionAuthorizationMiddlewareTest
 
         context.Setup(c => c.Items).Returns(new Dictionary<object, object>());
         context.Setup(c => c.Features).Returns(invocationFeatures.Object);
-        context.Setup(c => c.FunctionDefinition.EntryPoint).Returns("Integrio.Security.AzureFunctions.WebApplication.Runner.TestHttpTrigger.Run");
-        context.Setup(c => c.FunctionDefinition.PathToAssembly).Returns(typeof(TestHttpTrigger).Assembly.Location);
+        context.Setup(c => c.FunctionDefinition.EntryPoint).Returns("Integrio.Security.AzureFunctions.Tests.Testables.TestHttpTriggerWithAttributes.Run");
+        context.Setup(c => c.FunctionDefinition.PathToAssembly).Returns(typeof(TestHttpTriggerWithAttributes).Assembly.Location);        
+
+        var nextMock = new Mock<FunctionExecutionDelegate>();
+
+        // Act
+        await middleware.Invoke(context.Object, nextMock.Object);
+
+        // Assert
+        nextMock.Verify(n => n(context.Object), Times.Once);
+    }
+    
+        [Fact]
+    public async Task Invoke_WithValidTokenAndNoFunctionAttribute_CallsNext()
+    {
+        // Arrange
+        var loggerMock = new Mock<ILogger<FunctionAuthorizationMiddleware>>();
+        var tokenValidatorMock = new Mock<ITokenValidator>();
+        tokenValidatorMock.Setup(t => t.ValidateTokenAsync(It.IsAny<string?>(), It.IsAny<TokenValidationParameters>())).ReturnsAsync(new TokenValidationResult
+        {
+            IsValid = true,
+            ClaimsIdentity = new ClaimsIdentity(new List<Claim> { new Claim("roles", "Reader") })
+        });
+        
+        var tokenValidationParameters = new TokenValidationParameters();
+        var middleware = new FunctionAuthorizationMiddlewareFake(loggerMock.Object, tokenValidatorMock.Object, tokenValidationParameters, false);
+        
+        var context = new Mock<FunctionContext>();
+
+        var fakeHttpRequestData = new FakeHttpRequestData(context.Object, new Uri("http://localhost"));
+        fakeHttpRequestData.Headers.Add("Authorization", "Bearer valid-token");
+        var httpRequestDataFeature = new Mock<IHttpRequestDataFeature>();
+        httpRequestDataFeature.Setup(h => h.GetHttpRequestDataAsync(context.Object)).ReturnsAsync(fakeHttpRequestData);
+        
+        var invocationFeatures =  new Mock<IInvocationFeatures>();
+        invocationFeatures.Setup(i => i.Get<IHttpRequestDataFeature>()).Returns(httpRequestDataFeature.Object);
+
+        context.Setup(c => c.Items).Returns(new Dictionary<object, object>());
+        context.Setup(c => c.Features).Returns(invocationFeatures.Object);
+        context.Setup(c => c.FunctionDefinition.EntryPoint).Returns("Integrio.Security.AzureFunctions.Tests.Testables.TestHttpTriggerWithoutAttributes.Run");
+        context.Setup(c => c.FunctionDefinition.PathToAssembly).Returns(typeof(TestHttpTriggerWithoutAttributes).Assembly.Location);
 
         var nextMock = new Mock<FunctionExecutionDelegate>();
 

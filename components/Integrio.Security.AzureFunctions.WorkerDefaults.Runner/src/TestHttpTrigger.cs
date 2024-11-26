@@ -8,6 +8,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 
 namespace Integrio.Security.AzureFunctions.WorkerDefaults.Runner;
 
+[FunctionAuthorize("Default", "Writer")]
 public class TestHttpTrigger
 {
     private readonly ILogger<TestHttpTrigger> _logger;
@@ -18,7 +19,6 @@ public class TestHttpTrigger
     }
 
     [Function("TestHttpTrigger")]
-
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] 
         HttpRequestData req, 
         string employeeId, 
@@ -37,7 +37,7 @@ public class TestHttpTrigger
             _logger.LogInformation($"Claim Type: {claim.Type}, Claim Value: {claim.Value}");
         }
         
-        return await req.ToHttpResponse(HttpStatusCode.OK, "Weloce to Azure Functions!");
+        return await req.ToHttpResponse(HttpStatusCode.OK, "Welcome to Azure Functions!");
     }
 
 }
