@@ -19,7 +19,13 @@ Integrio.Security.AzureFunctions is a library that provides authorization middle
 You can install the package via NuGet:
 
 ```sh
-dotnet nuget add source "https://gitlab.com/api/v4/projects/64410497/packages/nuget/index.json" -n "AzureFunctionsSecurity" -u <your username> -p <your gitlab pat>
+# Add source
+dotnet nuget add source "https://gitlab.com/api/v4/projects/64410497/packages/nuget/index.json" -n "GitLabIntropyAzureFunctionsSecurity" -u <your username> -p <your gitlab pat>
+
+# Or update source
+dotnet nuget update source GitLabIntropyAzureFunctionsSecurity -s "https://gitlab.com/api/v4/projects/64410497/packages/nuget/index.json" -u <your username> -p <your gitlab pat>
+
+# Install package
 dotnet add package Integrio.Security.AzureFunctions
 ```
 
