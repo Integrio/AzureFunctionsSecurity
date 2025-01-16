@@ -109,6 +109,7 @@ public class FunctionAuthorizationMiddlewareTest
         context.Setup(c => c.Features).Returns(invocationFeatures.Object);
         context.Setup(c => c.FunctionDefinition.EntryPoint).Returns("Integrio.Security.AzureFunctions.Tests.Testables.TestHttpTriggerWithAttributes.Run");
         context.Setup(c => c.FunctionDefinition.PathToAssembly).Returns(typeof(TestHttpTriggerWithAttributes).Assembly.Location);        
+        context.Setup(c => c.InstanceServices.GetService(typeof(IClaimsIdentityProvider))).Returns(new ClaimsIdentityProvider());
 
         var nextMock = new Mock<FunctionExecutionDelegate>();
 
@@ -148,7 +149,7 @@ public class FunctionAuthorizationMiddlewareTest
         context.Setup(c => c.Features).Returns(invocationFeatures.Object);
         context.Setup(c => c.FunctionDefinition.EntryPoint).Returns("Integrio.Security.AzureFunctions.Tests.Testables.TestHttpTriggerWithoutAttributes.Run");
         context.Setup(c => c.FunctionDefinition.PathToAssembly).Returns(typeof(TestHttpTriggerWithoutAttributes).Assembly.Location);
-
+        context.Setup(c => c.InstanceServices.GetService(typeof(IClaimsIdentityProvider))).Returns(new ClaimsIdentityProvider());
         var nextMock = new Mock<FunctionExecutionDelegate>();
 
         // Act

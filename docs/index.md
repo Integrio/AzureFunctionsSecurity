@@ -98,7 +98,7 @@ public class TestHttpTrigger
 }
 ```
 ### Example: Accessing Claims
-Access the authenticated user's claims:
+Access the authenticated user's claims by injecting `IClaimsIdentityProvider` into your class.:
 
 ```csharp
 using Microsoft.Azure.Functions.Worker;
@@ -107,7 +107,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Integrio.Security.AzureFunctions;
 
-public class TestHttpTrigger
+public class TestHttpTrigger(IClaimsIdentityProvider claimsIdentityProvider)
 {
     [Function("UserInfo")]
     [FunctionAuthorize("User")]
@@ -115,8 +115,13 @@ public class TestHttpTrigger
         [HttpTrigger(AuthorizationLevel.Function, "get")] HttpRequest req,
         FunctionContext context)
     {
+        if (claimsIdentityProvider.ClaimsIdentity is null)
+        {
+            return await req.ToHttpResponse(HttpStatusCode.Unauthorized, "Unauthorized");
+        }
+
         var identity = context.GetClaimsIdentity();
-        var claims = identity.Claims.Select(c => new 
+        var claims = claimsIdentityProvider.ClaimsIdentity.Claims.Select(c => new 
         {
             Type = c.Type,
             Value = c.Value

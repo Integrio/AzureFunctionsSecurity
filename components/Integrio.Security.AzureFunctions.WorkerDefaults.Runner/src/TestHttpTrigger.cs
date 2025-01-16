@@ -9,43 +9,34 @@ using Microsoft.Azure.Functions.Worker.Http;
 namespace Integrio.Security.AzureFunctions.WorkerDefaults.Runner;
 
 [FunctionAuthorize("Default", "Writer")]
-public class TestHttpTrigger
+public class TestHttpTrigger(ILogger<TestHttpTrigger> logger, IClaimsIdentityProvider claimsIdentityProvider)
 {
-    private readonly ILogger<TestHttpTrigger> _logger;
-
-    public TestHttpTrigger(ILogger<TestHttpTrigger> logger)
-    {
-        _logger = logger;
-    }
-
     [Function("TestHttpTrigger")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] 
-        HttpRequestData req, 
-        string employeeId, 
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req,
+        string employeeId,
         FunctionContext context)
     {
-        _logger.LogInformation("C# HTTP trigger function processed a request.");
-        
-        var claimsIdentity = context.GetClaimsIdentity();
-        if (claimsIdentity is null)
+        logger.LogInformation("C# HTTP trigger function processed a request.");
+
+        if (claimsIdentityProvider.ClaimsIdentity is null)
         {
-            return await req.ToHttpResponse(HttpStatusCode.Unauthorized, "Invalid Bearer token");
+            logger.LogInformation("ClaimsIdentity not found!");
+            return await req.ToHttpResponse(HttpStatusCode.Unauthorized, "Unauthorized");
         }
-        
-        foreach (var claim in claimsIdentity.Claims)
+
+        foreach (var claim in claimsIdentityProvider.ClaimsIdentity.Claims)
         {
-            _logger.LogInformation($"Claim Type: {claim.Type}, Claim Value: {claim.Value}");
+            logger.LogInformation($"Claim Type: {claim.Type}, Claim Value: {claim.Value}");
         }
-        
+
         return await req.ToHttpResponse(HttpStatusCode.OK, "Welcome to Azure Functions!");
     }
-
 }
-
 
 public static class HttpRequestDataExtensions
 {
-    public static async Task<HttpResponseData> ToHttpResponse<T>(this HttpRequestData req, HttpStatusCode httpStatusCode, T payLoad, JsonSerializerOptions? jsonSerializerOptions = null)
+    public static async Task<HttpResponseData> ToHttpResponse<T>(this HttpRequestData req,
+        HttpStatusCode httpStatusCode, T payLoad, JsonSerializerOptions? jsonSerializerOptions = null)
     {
         var response = req.CreateResponse(httpStatusCode);
         response.Headers.Add("Content-Type", "application/json");

@@ -12,8 +12,8 @@ public class FunctionAuthorizationMiddlewareFake(
     bool disableAuthentication) : FunctionAuthorizationMiddleware(logger, tokenValidator, tokenValidationParameters, disableAuthentication)
 {
     public string? ResponseMessage { get; set; }
-    
-    public override void SetResponse(FunctionContext context, HttpResponseData responseData)
+
+    protected override void SetResponse(FunctionContext context, HttpResponseData responseData)
     {
         ResponseMessage = responseData.Body.ToString() ?? string.Empty;
     }

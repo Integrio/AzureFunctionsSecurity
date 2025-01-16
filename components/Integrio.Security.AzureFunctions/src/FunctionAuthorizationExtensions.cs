@@ -19,6 +19,7 @@ public static class FunctionAuthorizationExtensions
         this IFunctionsWorkerApplicationBuilder builder,
         string? configSectionPath = null)
     {
+        builder.Services.AddScoped<IClaimsIdentityProvider, ClaimsIdentityProvider>();
         builder.Services.AddSingleton<ITokenValidator, TokenValidator>();
         
         var serviceProvider = builder.Services.BuildServiceProvider();
@@ -45,6 +46,7 @@ public static class FunctionAuthorizationExtensions
         var disableAuthentication = configuration.GetValue<bool?>("DisableAuthentication") ?? false;
         
         var tokenValidator = serviceProvider.GetRequiredService<ITokenValidator>();
+        
         builder.UseMiddleware<FunctionAuthorizationMiddleware>(_ => new FunctionAuthorizationMiddleware(
             serviceProvider.GetRequiredService<ILogger<FunctionAuthorizationMiddleware>>(),
             tokenValidator, 
@@ -60,6 +62,7 @@ public static class FunctionAuthorizationExtensions
         string[] validIssuers,
         string[]? validAudiences = null)
     {
+        builder.Services.AddScoped<IClaimsIdentityProvider, ClaimsIdentityProvider>();
         builder.Services.AddSingleton<ITokenValidator, TokenValidator>();
         
         ArgumentException.ThrowIfNullOrEmpty(tenantId, nameof(tenantId));
@@ -78,7 +81,7 @@ public static class FunctionAuthorizationExtensions
             new FunctionAuthorizationMiddleware(
                 serviceProvider.GetRequiredService<ILogger<FunctionAuthorizationMiddleware>>(),
                 tokenValidator,
-                tokenValidationParameters, 
+                tokenValidationParameters,
                 disableAuthentication));
 
         return builder;
@@ -101,12 +104,7 @@ public static class FunctionAuthorizationExtensions
         };
         return tokenValidationParameters;
     }
-
-    public static ClaimsIdentity? GetClaimsIdentity(this FunctionContext self)
-    {
-        return self.Items.TryGetValue(Constants.ClaimsIdentity, out var identity) ? identity as ClaimsIdentity : default;
-    }
-
+    
     private static string GetAuthority(string tenantId) =>
         string.Format(CultureInfo.InvariantCulture, entraIdAuthorityUrl, tenantId);
     

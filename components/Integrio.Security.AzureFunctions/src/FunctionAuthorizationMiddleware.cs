@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Net;
 using System.Reflection;
-//using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker.Middleware;
@@ -16,7 +16,6 @@ public class FunctionAuthorizationMiddleware(
     TokenValidationParameters tokenValidationParameters,
     bool disableAuthentication) : IFunctionsWorkerMiddleware
 {
-    private const string HttpContextKey = "HttpRequestContext";
     private readonly ConcurrentDictionary<string, List<string>> _acceptedAppRolesCache = new();
 
     public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
@@ -58,10 +57,13 @@ public class FunctionAuthorizationMiddleware(
             return;
         }
 
+        var claimsIdentityProvider = context.InstanceServices.GetRequiredService<IClaimsIdentityProvider>();
+        claimsIdentityProvider.ClaimsIdentity = tokenValidationResult.ClaimsIdentity;
+        
         await next(context);
     }
 
-    public virtual void SetResponse(FunctionContext context, HttpResponseData responseData)
+    protected virtual void SetResponse(FunctionContext context, HttpResponseData responseData)
     {
         context.GetInvocationResult().Value = responseData;
     }
@@ -81,13 +83,7 @@ public class FunctionAuthorizationMiddleware(
         }
         
         var appRoles = tokenValidationResult.ClaimsIdentity.FindAll("roles");
-        var isAuthorized = appRoles.Any(ur => acceptedAppRoles.Contains(ur.Value));
-        if (isAuthorized)
-        {
-            context.Items[Constants.ClaimsIdentity] = tokenValidationResult.ClaimsIdentity;
-        }
-
-        return isAuthorized;
+        return appRoles.Any(ur => acceptedAppRoles.Contains(ur.Value));
     }
 
     private MethodInfo? GetTargetFunctionMethod(FunctionContext context)
@@ -132,7 +128,7 @@ public class FunctionAuthorizationMiddleware(
 
     private bool TryGetTokenFromHeaders(HttpRequestData requestData, out string? token)
     {
-        token = default;
+        token = null;
         if(requestData.Headers.TryGetValues("authorization", out var authHeaders))
         {
             var authHeader = authHeaders.First();
