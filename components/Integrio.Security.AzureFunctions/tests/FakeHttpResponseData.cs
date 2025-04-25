@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
 using Microsoft.Azure.Functions.Worker;
@@ -17,6 +18,5 @@ public class FakeHttpResponseData : HttpResponseData
     public override HttpStatusCode StatusCode { get; set; }
     public override HttpHeadersCollection Headers { get; set; } = new HttpHeadersCollection();
     public override Stream Body { get; set; } = new MemoryStream();
-    public override HttpCookies Cookies { get; }
-
+    public override HttpCookies Cookies => throw new NotImplementedException();
 }

@@ -4,11 +4,11 @@ using Microsoft.Azure.Functions.Worker;
 
 namespace Integrio.Security.AzureFunctions.Tests.Testables;
 
-[FunctionAuthorize("Default", "Writer")]
+[FunctionAuthorize(AppRoles = ["Default", "Writer"], UserScopes = ["Api.Writer"])]
 public class TestHttpTriggerWithAttributes
 {
     [Function("TestHttpTrigger")]
-    [FunctionAuthorize("Reader")]
+    [FunctionAuthorize(AppRoles = ["Reader"], UserScopes = ["Api.Reader"])]
     public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req,
         FunctionContext context)
     {

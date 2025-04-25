@@ -89,7 +89,7 @@ public class FunctionAuthorizationMiddlewareTest
         tokenValidatorMock.Setup(t => t.ValidateTokenAsync(It.IsAny<string?>(), It.IsAny<TokenValidationParameters>())).ReturnsAsync(new TokenValidationResult
         {
             IsValid = true,
-            ClaimsIdentity = new ClaimsIdentity(new List<Claim> { new Claim("roles", "Reader") })
+            ClaimsIdentity = new ClaimsIdentity(new List<Claim> { new Claim("scp", "Api.Reader") })
         });
         
         var tokenValidationParameters = new TokenValidationParameters();
