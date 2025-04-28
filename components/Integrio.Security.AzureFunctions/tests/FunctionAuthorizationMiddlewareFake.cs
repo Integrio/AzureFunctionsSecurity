@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Functions.Worker;
+﻿using System.IO;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -15,6 +16,8 @@ public class FunctionAuthorizationMiddlewareFake(
 
     protected override void SetResponse(FunctionContext context, HttpResponseData responseData)
     {
-        ResponseMessage = responseData.Body.ToString() ?? string.Empty;
+        responseData.Body.Position = 0;
+        using var reader = new StreamReader(responseData.Body);
+        ResponseMessage = reader.ReadToEnd();
     }
 }
