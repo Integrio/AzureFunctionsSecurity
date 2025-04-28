@@ -9,7 +9,7 @@ Integrio.Security.AzureFunctions is a library that provides authorization middle
 - Easy integration with Azure Functions
 - Configurable through app settings or code
 - Class and method level authorization attributes
-- Support for multiple roles and policies
+- Support for multiple app roles and user scopes
 
 
 > **Note:** This library only supports JWT Bearer Tokens that are sent in the `authorization` header of the HTTP request.
@@ -93,11 +93,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Integrio.Security.AzureFunctions;
 
-[FunctionAuthorize("Default", "Writer")]
+[FunctionAuthorize(AppRoles = ["Default"], UserScopes = ["Api.Default"])]
 public class TestHttpTrigger
 {
     [Function("TestHttpTrigger")]
-    [FunctionAuthorize("Reader")]
+    [FunctionAuthorize(AppRoles = ["Writer"], UserScopes = ["Api.Writer"])]
     public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req, FunctionContext context)
     {
         return new OkObjectResult("Welcome to Azure Functions!");
@@ -117,7 +117,7 @@ using Integrio.Security.AzureFunctions;
 public class TestHttpTrigger(IClaimsIdentityProvider claimsIdentityProvider)
 {
     [Function("UserInfo")]
-    [FunctionAuthorize("User")]
+    [FunctionAuthorize(AppRoles = ["Writer"], UserScopes = ["Api.Writer"])]
     public IActionResult GetUserInfo(
         [HttpTrigger(AuthorizationLevel.Function, "get")] HttpRequest req,
         FunctionContext context)
