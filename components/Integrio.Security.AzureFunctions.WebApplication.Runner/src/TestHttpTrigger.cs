@@ -6,11 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Integrio.Security.AzureFunctions.WebApplication.Runner;
 
-[FunctionAuthorize("Default", "Writer")]
+[FunctionAuthorize(UserScopes = ["Configuration.Read"])]
 public class TestHttpTrigger(ILogger<TestHttpTrigger> logger, IClaimsIdentityProvider claimsIdentityProvider)
 {
     [Function("TestHttpTrigger")]
-    [FunctionAuthorize("Reader")]
     public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req, FunctionContext context)
     {
         logger.LogInformation("C# HTTP trigger function processed a request.");

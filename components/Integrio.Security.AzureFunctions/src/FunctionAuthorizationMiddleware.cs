@@ -16,7 +16,8 @@ public class FunctionAuthorizationMiddleware(
     TokenValidationParameters tokenValidationParameters,
     bool disableAuthentication) : IFunctionsWorkerMiddleware
 {
-    private readonly ConcurrentDictionary<string, List<string>> _acceptedAppRolesCache = new();
+    private readonly ConcurrentDictionary<string, List<string>> _requiredAppRolesCache = new();
+    private readonly ConcurrentDictionary<string, List<string>> _requiredUserScopesCache = new();
 
     public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
     {
@@ -50,13 +51,13 @@ public class FunctionAuthorizationMiddleware(
             return;
         }
         
-        if (!AuthorizeAppRoles(context, tokenValidationResult))
+        if (!Authorize(context, tokenValidationResult))
         {
             var responseData = await GetResponseAsync(context, HttpStatusCode.Forbidden, "Unauthorized");
             SetResponse(context, responseData);
             return;
         }
-
+        
         var claimsIdentityProvider = context.InstanceServices.GetRequiredService<IClaimsIdentityProvider>();
         claimsIdentityProvider.ClaimsIdentity = tokenValidationResult.ClaimsIdentity;
         
@@ -68,24 +69,33 @@ public class FunctionAuthorizationMiddleware(
         context.GetInvocationResult().Value = responseData;
     }
 
-    private bool AuthorizeAppRoles(FunctionContext context, TokenValidationResult tokenValidationResult)
+    private bool Authorize(FunctionContext context, TokenValidationResult tokenValidationResult)
     {
-        var acceptedAppRoles = _acceptedAppRolesCache.GetOrAdd(context.FunctionDefinition.EntryPoint, _ =>
+        var requiredAppRoles = _requiredAppRolesCache.GetOrAdd(context.FunctionDefinition.EntryPoint, _ =>
         {
             var targetMethod = GetTargetFunctionMethod(context);
-            return GetAcceptedAppRoles(targetMethod);
+            return GetRequiredAppRoles(targetMethod);
         });
 
-        if (acceptedAppRoles.Count == 0)
+        var requiredUserScopes = _requiredUserScopesCache.GetOrAdd(context.FunctionDefinition.EntryPoint, _ =>
         {
-            //If no roles are defined on class or function method level, allow access
+            var targetMethod = GetTargetFunctionMethod(context);
+            return GetRequiredUserScopes(targetMethod);
+        });
+        
+        if (requiredAppRoles.Count == 0 && requiredUserScopes.Count == 0)
+        {
+            //If no app roles or user scopes are defined on class or function method level, allow access
             return true;
         }
         
-        var appRoles = tokenValidationResult.ClaimsIdentity.FindAll("roles");
-        return appRoles.Any(ur => acceptedAppRoles.Contains(ur.Value));
+        var appRoles = tokenValidationResult.ClaimsIdentity.FindAll("roles").Select(x => x.Value);
+        var userScopes = tokenValidationResult.ClaimsIdentity.FindFirst("scp")?.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries).AsEnumerable() ?? [];
+        
+        return appRoles.Any(role => requiredAppRoles.Contains(role)) || 
+               userScopes.Any(scope => requiredUserScopes.Contains(scope));
     }
-
+    
     private MethodInfo? GetTargetFunctionMethod(FunctionContext context)
     {
         var entryPoint = context.FunctionDefinition.EntryPoint;
@@ -97,14 +107,22 @@ public class FunctionAuthorizationMiddleware(
         return type?.GetMethod(methodName);
     }
 
-    private List<string> GetAcceptedAppRoles(MethodInfo? targetMethod)
+    private List<string> GetRequiredAppRoles(MethodInfo? targetMethod)
     {
         var attributes = GetCustomAttributesOnClassAndMethod<FunctionAuthorizeAttribute>(targetMethod);
-        // Same as above for scopes and user roles,
-        // only allow app roles that are common in
-        // class and method level attributes.
+        // Only allow app roles that are common in class and method level attributes.
         return attributes
             .SelectMany(a => a.AppRoles)
+            .Distinct()
+            .ToList();
+    }
+    
+    private List<string> GetRequiredUserScopes(MethodInfo? targetMethod)
+    {
+        var attributes = GetCustomAttributesOnClassAndMethod<FunctionAuthorizeAttribute>(targetMethod);
+        // Only allow user scopes that are common in class and method level attributes.
+        return attributes
+            .SelectMany(a => a.UserScopes)
             .Distinct()
             .ToList();
     }
