@@ -21,13 +21,13 @@ public class FakeHttpRequestData : HttpRequestData
 
     public override HttpHeadersCollection Headers { get; } = new HttpHeadersCollection();
 
-    public override IReadOnlyCollection<IHttpCookie> Cookies { get; }
+    public override IReadOnlyCollection<IHttpCookie> Cookies => throw new NotImplementedException();
 
     public override Uri Url { get; }
 
-    public override IEnumerable<ClaimsIdentity> Identities { get; }
+    public override IEnumerable<ClaimsIdentity> Identities => throw new NotImplementedException();
 
-    public override string Method { get; }
+    public override string Method => throw new NotImplementedException();
 
     public override HttpResponseData CreateResponse()
     {
